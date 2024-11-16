@@ -1,35 +1,52 @@
 # 11724. 연결 요소의 개수
 
-def connected(n, edges):
-    graph = [[] for _ in range(n + 1)]        # 정점의 개수 n+1만큼 빈 리스트를 생성 -> 각 정점이 연결된 다른 정점들을 저장
-    
-    for _ in range(len(edges)):        
-        u, v = map(int, input().split())  # 간선의 양 끝점 u, v 입력
-        graph[u].append(v)  # 정점 u에 연결된 정점 v 추가
-        graph[v].append(u)  # 정점 v에 연결된 정점 u 추가
+def count_connected_components(n, edges):
+    from collections import defaultdict, deque
 
-    visited = [False] * (n + 1)  # 각 정점을 방문했는지 여부를 기록하는 리스트 생성
+    # 그래프 생성
+    # defaultdict를 사용하여 리스트 형태로 각 노드의 인접 노드를 저장하는 그래프를 생성합니다.
+    graph = defaultdict(list)
+    for u, v in edges:
+        graph[u].append(v)  # 노드 u에 연결된 노드 v 추가
+        graph[v].append(u)  # 노드 v에 연결된 노드 u 추가 (무방향 그래프이므로 양방향 추가)
 
-    # DFS 함수 정의
-    def dfs(node):
-        stack = [node]  # 현재 탐색 중인 노드를 스택에 추가
-        while stack:  
-            current = stack.pop()  # 스택에서 현재 노드를 꺼내서
-            for neighbor in graph[current]:  # 현재 노드와 연결된 이웃 노드 탐색
-                if not visited[neighbor]:  # 방문하지 않은 노드일 경우
-                    visited[neighbor] = True  
-                    stack.append(neighbor)  # 스택에 추가
+    # 방문 체크 리스트
+    # 각 노드가 방문되었는지 확인하기 위한 리스트. 초기값은 False로 설정
+    visited = [False] * (n + 1)
 
-    count = 0  # count: 연결 요소의 개수를 저장하는 변수
-    for i in range(1, n + 1): 
-        if not visited[i]:  # 방문하지 않은 정점일 경우
-            visited[i] = True  
-            dfs(i)  
-            count += 1  # 연결 요소의 개수 1 증가
+    # BFS(너비 우선 탐색) 함수 정의
+    def bfs(start):
+        queue = deque([start])  # 탐색을 위한 큐 생성 및 시작 노드 삽입
+        visited[start] = True  # 시작 노드 방문 처리
+        while queue:  # 큐가 빌 때까지 반복
+            node = queue.popleft()  # 큐에서 노드를 하나 꺼냄
+            for neighbor in graph[node]:  # 현재 노드에 연결된 모든 인접 노드 확인
+                if not visited[neighbor]:  # 방문하지 않은 노드라면
+                    visited[neighbor] = True  # 방문 처리
+                    queue.append(neighbor)  # 큐에 추가
 
-    return count  # 최종 연결 요소의 개수 반환
+    # 연결 요소 개수 카운트
+    connected_components = 0  # 연결 요소의 개수를 저장할 변수
 
-# 정점(n)과 간선(m)의 개수를 입력받음
-n, m = map(int, input().split())
-# 연결 요소의 개수를 출력
-print(connected(n, [(0, 0)] * m))
+    # 모든 노드에 대해 연결 요소 탐색
+    for node in range(1, n + 1):  # 1번 노드부터 n번 노드까지 반복
+        if not visited[node]:  # 현재 노드가 방문되지 않았다면
+            bfs(node)  # BFS 탐색 수행
+            connected_components += 1  # 연결 요소 개수 증가
+
+    return connected_components  # 최종 연결 요소 개수 반환
+
+# 입력 처리
+if __name__ == "__main__":
+    import sys
+    input = sys.stdin.read  # 표준 입력을 읽어옴
+    data = input().splitlines()  # 입력 데이터를 줄 단위로 분리
+
+    # 첫 줄에서 노드 수 n과 간선 수 m을 읽음
+    n, m = map(int, data[0].split())
+
+    # 간선 데이터를 읽어 튜플 리스트로 변환
+    edges = [tuple(map(int, line.split())) for line in data[1:]]
+
+    # 연결 요소 개수 계산 및 출력
+    print(count_connected_components(n, edges))  # 결과 출력
