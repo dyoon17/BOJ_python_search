@@ -4,7 +4,7 @@ def count_connected_components(n, edges):
     from collections import defaultdict, deque
 
     # 그래프 생성
-    # defaultdict를 사용하여 리스트 형태로 각 노드의 인접 노드를 저장하는 그래프를 생성합니다.
+    # defaultdict를 사용하여 리스트 형태로 각 노드의 인접 노드를 저장하는 그래프를 생성
     graph = defaultdict(list)
     for u, v in edges:
         graph[u].append(v)  # 노드 u에 연결된 노드 v 추가
